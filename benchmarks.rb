@@ -1685,6 +1685,7 @@ RUNS = [
     run_cmd: <<~CMD.chomp,
       java \
         -Xmx8g \
+        -XX:+UseSerialGC \
         -Dfile.encoding=UTF-8 \
         -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
     CMD
@@ -1737,7 +1738,7 @@ RUNS = [
     run_cmd: <<~CMD.chomp,
       java \
         -Dfile.encoding=UTF-8 \
-        -XX:+UseG1GC \
+        -XX:+UseSerialGC \
         -XX:+EnableJVMCI \
         -XX:+UseJVMCICompiler \
         -Djvmci.Compiler=graal \
