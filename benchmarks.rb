@@ -74,6 +74,21 @@ LANG_MASKS = {
   'mojo' => ['./mojo', ['.mojo'], ['.pixi', 'target']],
 }
 
+JAVA_DEFAULT_GC = :serial
+
+JAVA_GC_OVERRIDES = {
+  "Binarytrees::Obj"     => :parallel,
+  "Etc::CacheSimulation" => :g1,
+  "Template::Regex"      => :parallel,
+  "Calculator::Ast"      => :parallel,
+}
+
+JAVA_GCS = {
+  serial:   ["-XX:+UseSerialGC",   "SerialGC"],
+  parallel: ["-XX:+UseParallelGC", "ParallelGC"],
+  g1:       ["-XX:+UseG1GC",       "G1GC"],
+}
+
 def check_source_files(verbose = false)
   require 'find'
   require 'zlib'
@@ -1686,6 +1701,7 @@ RUNS = [
       java \
         -Xmx8g \
         -Dfile.encoding=UTF-8 \
+        __GC__ \
         -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
     CMD
     version_cmd: "java --version",
@@ -2589,12 +2605,26 @@ def run(run, index)
   memory = 0.0
 
   puts "Running #{run.name} (#{index} from #{RUNS.size})"
+
   TESTS.each_with_index do |test_name, index|
+    run_cmd = run.run_cmd
+    gc_label = nil
+
+    if run_cmd.include?("__GC__")
+      gc_name = JAVA_GC_OVERRIDES.fetch(test_name, JAVA_DEFAULT_GC)
+      gc_flag, gc_label = JAVA_GCS.fetch(gc_name)
+      run_cmd = run_cmd.sub("__GC__", gc_flag)
+    end
+
     print "#{index}. #{test_name}"
-    RESULTS[test_name+"-runtime"] ||= {}
-    RESULTS[test_name+"-mem-mb"] ||= {}
-  
-    stats = run.run("#{run.run_cmd} #{CFG} #{test_name}", IS_VERBOSE)
+    print " [#{gc_label}]" if gc_label
+
+    RESULTS[test_name + "-runtime"] ||= {}
+    RESULTS[test_name + "-mem-mb"] ||= {}
+
+    stats = run.run("#{run_cmd} #{CFG} #{test_name}", IS_VERBOSE)
+
+
     mem = stats[:rss] / 1024.0
     memory += mem
     RESULTS[test_name+"-mem-mb"][run.name] = mem
