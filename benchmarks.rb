@@ -1685,6 +1685,28 @@ RUNS = [
     run_cmd: <<~CMD.chomp,
       java \
         -Xmx8g \
+        -Dfile.encoding=UTF-8 \
+        -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
+    CMD
+    version_cmd: "java --version",
+    dir: "/src/java",
+    container: "java",
+    group: :prod,
+    deps_cmd: "mvn dependency:resolve; mvn dependency:resolve-plugins",
+  ),
+
+  Run.new(
+    name: "Java/OpenJDK/Serial",
+    build_cmd: <<~CMD.chomp,
+      mvn compile package -Pjava-plain \
+        -DskipTests \
+        -Dmaven.test.skip=true \
+        -q
+    CMD
+    binary_name: "./target/java-benchmarks-1.0-SNAPSHOT.jar",
+    run_cmd: <<~CMD.chomp,
+      java \
+        -Xmx512m \
         -XX:+UseSerialGC \
         -Dfile.encoding=UTF-8 \
         -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
@@ -1728,6 +1750,33 @@ RUNS = [
 
   Run.new(
     name: "Java/GraalVM/JIT",
+    build_cmd: <<~CMD.chomp,
+      mvn compile package -Pgraalvm-jit \
+        -DskipTests \
+        -Dmaven.test.skip=true \
+        -q
+    CMD
+    binary_name: "./target/java-benchmarks-1.0-SNAPSHOT.jar",
+    run_cmd: <<~CMD.chomp,
+      java \
+        -Dfile.encoding=UTF-8 \
+        -XX:+UseG1GC \
+        -XX:+EnableJVMCI \
+        -XX:+UseJVMCICompiler \
+        -Djvmci.Compiler=graal \
+        -XX:-TieredCompilation \
+        -Xmx8g \
+        -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
+    CMD
+    version_cmd: "java --version",
+    dir: "/src/java",
+    container: "graalvm",
+    group: :prod,
+    deps_cmd: "mvn dependency:resolve; mvn dependency:resolve-plugins",
+  ),
+ 
+  Run.new(
+    name: "Java/GraalVM/JIT/Serial",
     build_cmd: <<~CMD.chomp,
       mvn compile package -Pgraalvm-jit \
         -DskipTests \
