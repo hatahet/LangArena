@@ -1714,7 +1714,7 @@ RUNS = [
     version_cmd: "java --version",
     dir: "/src/java",
     container: "java",
-    group: :prod,
+    group: :hack,
     deps_cmd: "mvn dependency:resolve; mvn dependency:resolve-plugins",
   ),
 
@@ -1776,7 +1776,7 @@ RUNS = [
   ),
  
   Run.new(
-    name: "Java/GraalVM/JIT/Serial",
+    name: "Java/GraalVM/Serial",
     build_cmd: <<~CMD.chomp,
       mvn compile package -Pgraalvm-jit \
         -DskipTests \
@@ -1798,7 +1798,7 @@ RUNS = [
     version_cmd: "java --version",
     dir: "/src/java",
     container: "graalvm",
-    group: :prod,
+    group: :hack,
     deps_cmd: "mvn dependency:resolve; mvn dependency:resolve-plugins",
   ),
 
