@@ -1684,7 +1684,7 @@ RUNS = [
     binary_name: "./target/java-benchmarks-1.0-SNAPSHOT.jar",
     run_cmd: <<~CMD.chomp,
       java \
-        -Xmx8g \
+        -Xmx512m \
         -Dfile.encoding=UTF-8 \
         -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
     CMD
@@ -1742,7 +1742,7 @@ RUNS = [
         -XX:+UseJVMCICompiler \
         -Djvmci.Compiler=graal \
         -XX:-TieredCompilation \
-        -Xmx8g \
+        -Xmx512m \
         -jar ./target/java-benchmarks-1.0-SNAPSHOT.jar
     CMD
     version_cmd: "java --version",
